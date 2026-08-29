@@ -1,1 +1,25 @@
+Human Snapshot - jpetstore-6
 
+Repository: mybatis/jpetstore-6
+Commit: dd173b78
+Full Commit Hash: dd173b7813008deb577837bcdd14421f19aca5d3
+Date: 2022-12-30
+
+Files included:
+1. Account.java
+2. Item.java
+3. Order.java
+4. AccountMapper.java
+5. ItemMapper.java
+6. OrderMapper.java
+7. AccountService.java
+8. OrderService.java
+9. AccountActionBean.java
+10. OrderActionBean.java
+11. Cart.java
+12. CartItem.java
+13. CatalogService.java
+14. CartActionBean.java
+15. CatalogActionBean.java
+
+All files were extracted from the same historical commit (dd173b78), dated 2022-12-30 - the last commit of that year.
