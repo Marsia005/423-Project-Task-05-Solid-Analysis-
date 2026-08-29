@@ -71,3 +71,16 @@
 ## Reflection
 
 The original codebase implements substantially more functionality than the LLM prompt requested (payment defaults, multi-table transactional writes, sequence generation), so a smaller LLM violation count is expected rather than evidence of "better" code. The more meaningful comparison is *where* violations cluster — and on that front, both versions tell the same story: Controllers are the layer most in need of discipline, in human-written and LLM-generated code alike.
+
+## Structural Coverage Gap
+
+Out of the 15 architectural roles present in the original human codebase, the LLM generated only 11. The 4 missing roles were:
+
+| Missing Class | Role | Why it matters |
+|---|---|---|
+| AccountService | Service | LLM skipped the Service layer entirely — Controllers call Repositories directly |
+| OrderService | Service | Same — checkout logic lives directly in the Controller instead |
+| CatalogService | Service | Same pattern, third time — confirms this wasn't a one-off omission |
+| CartItem | Domain | LLM stored cart contents as a plain list of item IDs instead of a dedicated line-item class |
+
+**Finding:** Given only a plain functional description — with no mention of layering or SOLID — the LLM did not invent a Service layer on its own, and collapsed cart contents into a simpler data shape than the original design. This suggests these structural choices (a Service layer, a dedicated line-item class) are not default LLM behavior; they only appear when explicitly requested, which is consistent with what the [architectural evolution seen in Iterations 2 and 3](#) showed when the Service layer was specifically prompted for.
