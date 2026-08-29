@@ -136,3 +136,26 @@
 - **Interface Dependency:** None — depends on concrete CatalogService
 - **Description:** Web-layer entry point for category browsing, product/item viewing, and search.
 - **SRP Analysis:** Clearest violation in the set, and the largest class analyzed. Four unrelated user-facing features live in one file.
+
+## SOLID Analysis Table — Original (Human, 2022 snapshot)
+
+| # | Class | Layer | LOC | Methods | Inheritance | Interface Dependency | SRP Status | Reason |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Account.java | Domain | 196 | 36 | None (Serializable only) | None | Clean | Pure data holder; only reason to change is if account data shape changes |
+| 2 | Item.java | Domain | 145 | 25 | None (Serializable only) | None | Clean | Pure data-holder; one reason to change is item schema |
+| 3 | Order.java | Domain | 335 | 58 | None (Serializable only) | None | **Violation** | `initOrder()` hardcodes business defaults (card number, expiry, courier) directly in the domain class — two reasons to change |
+| 4 | AccountMapper.java | Mapper (Repository) | 43 | 8 | N/A (interface) | N/A (is the interface) | Clean | Every method is account persistence, one coherent job (8 bundled methods raise a separate ISP concern, not SRP) |
+| 5 | ItemMapper.java | Mapper (Repository) | 38 | 4 | N/A (interface) | N/A | Clean | Narrow, coherent, one job |
+| 6 | OrderMapper.java | Mapper (Repository) | 37 | 4 | N/A (interface) | N/A | Clean | Same reasoning as ItemMapper |
+| 7 | AccountService.java | Service | 75 | 4 | None | Yes — AccountMapper (constructor-injected) | **Borderline violation** | `insertAccount()` hardcodes the exact 3-step save sequence inline |
+| 8 | OrderService.java | Service | 132 | 4 | None | Yes — 4 mapper interfaces (constructor-injected) | **Violation** | `getNextId()` is generic sequence-generation, unrelated to order logic specifically |
+| 9 | AccountActionBean.java | Controller | 208 | 19 | Yes — extends AbstractActionBean | None (concrete AccountService, CatalogService) | **Clear violation** | 4 distinct concerns: account creation, profile editing, session/auth, product list pulling |
+| 10 | OrderActionBean.java | Controller | 197 | 16 | Yes — extends AbstractActionBean | None (concrete OrderService) | **Violation** | Combines listing, multi-step checkout, viewing; unchecked casts to grab other ActionBeans from session |
+| 11 | Cart.java | Domain | 125 | 12 | None (Serializable only) | None | **Mild violation** | Mixes "holds cart data" with "calculates monetary totals" |
+| 12 | CartItem.java | Domain | 76 | 9 | None (Serializable only) | None | Clean | `calculateTotal()` only concerns this object's own two fields |
+| 13 | CatalogService.java | Service | 89 | 9 | None | Yes — 3 mapper interfaces (constructor-injected) | Clean | Every method is catalog data retrieval; well-scoped |
+| 14 | CartActionBean.java | Controller | 139 | 10 | Yes — extends AbstractActionBean | None (concrete CatalogService) | **Violation** | At least 3 distinct concerns bundled; silently swallows parse exceptions |
+| 15 | CatalogActionBean.java | Controller | 219 | 26 | Yes — extends AbstractActionBean | None (concrete CatalogService) | **Clearest violation** | 4 unrelated user-facing features (browse, product view, item view, search) in one file; largest class analyzed |
+
+**Summary: 9 of 15 classes violate SRP. 6 of 15 are clean.**
+**Pattern: every Controller-layer class has a violation. Every clean class is a Domain object or Mapper interface.**
